@@ -119,5 +119,19 @@ class MoneyTransferTest {
         assertNotNull(dashboardPage);
         assertEquals(startBalance, dashboardPage.getBalance(firstCardNumber));
     }
+
+    @Test
+    void escapeTransactionTest() {
+        var cardList = getValidCardNumbers();
+
+        var firstCardNumber = cardList.get(random.nextInt(cardList.size()));
+        var startBalance = dashboardPage.getBalance(firstCardNumber);
+
+        var transferPage = dashboardPage.transferToCard(firstCardNumber);
+
+        dashboardPage = transferPage.cancelTransfer();
+        assertNotNull(dashboardPage);
+        assertEquals(startBalance, dashboardPage.getBalance(firstCardNumber));
+    }
 }
 
