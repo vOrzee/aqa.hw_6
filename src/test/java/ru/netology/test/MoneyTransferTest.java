@@ -55,6 +55,23 @@ class MoneyTransferTest {
     }
 
     @Test
+    void transferMoneyFailureTest() {
+        var cardList = getValidCardNumbers();
+
+        var firstCardNumber = cardList.get(random.nextInt(cardList.size()));
+        var startBalance = dashboardPage.getBalance(firstCardNumber);
+
+        cardList = cardList.stream().filter(str -> !str.equals(firstCardNumber)).collect(Collectors.toList());
+        var secondCardNumber = cardList.get(random.nextInt(cardList.size()));
+
+        var transferPage = dashboardPage.transferToCard(secondCardNumber);
+
+        var amount = (int) (startBalance * (1.0 + random.nextDouble()));
+        dashboardPage = transferPage.transferFromCard(String.valueOf(amount), firstCardNumber);
+        assertNull(dashboardPage);
+    }
+
+    @Test
     void transferMoneyFailureTestWrongCardNumberFrom() {
         var cardList = getValidCardNumbers();
 
