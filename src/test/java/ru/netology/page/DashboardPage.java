@@ -1,41 +1,52 @@
 package ru.netology.page;
 
+import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
-import ru.netology.data.DataHelper;
-
-import java.util.List;
+import lombok.val;
 
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
-import static ru.netology.data.DataHelper.findCardFromNumber;
-import static ru.netology.data.DataHelper.getCardItem;
+import static com.codeborne.selenide.Selenide.$$;
 
 public class DashboardPage {
     private final SelenideElement heading = $("[data-test-id=dashboard]");
-    private final SelenideElement firstCard = $("div[data-test-id='92df3f1c-a033-48e6-8390-206f6b1f56c0']");
-    private final SelenideElement secondCard = $("div[data-test-id='0f3f5c2a-249e-4c3d-8287-09f7a039391d']");
     private final SelenideElement reloadButton = $("[data-test-id='action-reload']");
-
-    private final List<DataHelper.CardItem> cardItems;
+    private final ElementsCollection cardItems = $$(".list__item div");
+    private final String balanceStart = "баланс: ";
+    private final String balanceFinish = " р.";
 
     public DashboardPage() {
         heading.shouldBe(visible);
-        cardItems = List.of(getCardItem(firstCard), getCardItem(secondCard));
+//        reloadButton.should(exist);
+//        cardItems.first().shouldBe(exist);
     }
 
     public int getBalance(String cardNumber) {
-        var card = findCardFromNumber(cardItems, cardNumber);
-        return card.getInfo().getBalance();
+        val card = findCardFromNumber(cardNumber);
+        return extractBalance(card.getText());
+    }
+
+    private int extractBalance(String text) {
+        val start = text.indexOf(balanceStart);
+        val finish = text.indexOf(balanceFinish);
+        val value = text.substring(start + balanceStart.length(), finish);
+        return Integer.parseInt(value);
     }
 
     public TransferPage transferToCard(String cardNumber) {
-        var card = findCardFromNumber(cardItems, cardNumber);
-        card.getActionButton().click();
+        var card = findCardFromNumber(cardNumber);
+        card.$("button").click();
         return new TransferPage();
     }
 
     public DashboardPage reload() {
         reloadButton.click();
         return new DashboardPage();
+    }
+
+    public SelenideElement findCardFromNumber(String cardNumber) {
+        var lastDigits = cardNumber.substring(cardNumber.length() - 4);
+        return cardItems.find(Condition.text(lastDigits));
     }
 }

@@ -1,8 +1,8 @@
 package ru.netology.page;
 
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 
+import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.$;
 
 public class TransferPage {
@@ -15,18 +15,19 @@ public class TransferPage {
     private final SelenideElement errorNotification = $("[data-test-id='error-notification']");
 
     public TransferPage() {
-        heading.shouldHave(Condition.text("Пополнение карты"));
+        heading.shouldHave(text("Пополнение карты"));
+    }
+
+    public void checkNotificationMessage(String message) {
+        errorNotification.shouldBe(visible);
+        errorNotification.shouldHave(text(message));
     }
 
     public DashboardPage transferFromCard(String amount, String cardNumber) {
         amountField.setValue(amount);
         fromField.setValue(cardNumber);
         transferButton.click();
-        if(errorNotification.is(Condition.visible)) {
-            errorNotification.shouldHave(Condition.text("Ошибка! Произошла ошибка"));
-            return null;
-        }
-        return new DashboardPage();
+        return new DashboardPage(); // errorNotification.is(hidden) ? new DashboardPage() : null;
     }
 
     public DashboardPage cancelTransfer() {
